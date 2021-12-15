@@ -6,9 +6,21 @@
     <!-- Status Display / User Feedback -->
     <div class="status-display">
       <ul class="status wallet-status">
-        <li class="counter"><strong>Wallet State:</strong>&nbsp;{{wallet.state}}</li>
+        <li class="wallet-state">
+          <strong>Wallet State:</strong>&nbsp;
+          <span>{{wallet.state}}</span>
+        </li>
       </ul>
-
+      <div class="status-display accounts" v-if="accounts && wallet.state == wallet.states[2]">
+        <div v-if="accounts.length">
+          <ul class="status accounts-list">
+            <li class="accounts account-item" v-for="(account, i) in accounts" :key="i">
+              <strong>Account:</strong>&nbsp;
+              <span>{{account.address}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Controls -->
@@ -122,21 +134,7 @@ button {
   margin: 1rem;
   padding: 0.25rem;
 }
-p.label {
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-pre {
-  line-height:1.2em;
-  background:linear-gradient(180deg,#ccc 0,#ccc 1.2em,#eee 0);
-  background-size:2.4em 2.4em;
-  background-origin:content-box;
-  padding: 1em;
-  text-align:justify;
-  display: inline-block;
-  color: #0a4862;
-  background-color: #73c8eb;
-  border-color: #3bb3e3;
-  border-radius: 0.5em;
+li span {
+  font-style: italic;
 }
 </style>
