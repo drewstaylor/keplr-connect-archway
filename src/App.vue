@@ -67,11 +67,10 @@ export default {
       console.log('Init');
     },
     connectWallet: async function () {
-      console.log('Connecting wallet...', window);
+      console.log('Connecting wallet...');
       try {
         if (window) {
           if (window['keplr']) {
-            console.log('window.keplr', window.keplr);
             if (window.keplr['experimentalSuggestChain']) {
               let chainId = chainInfo.chainId;
               let rpc = chainInfo.rpc;
