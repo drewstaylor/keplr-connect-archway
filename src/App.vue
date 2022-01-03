@@ -36,7 +36,7 @@
       <!-- Connect -->
       <button id="connect" class="btn btn-main" @click="connectWallet();" v-if="wallet.state !== wallet.states[2]">Connect Wallet</button>
       <!-- Request -->
-      <button id="request" class="btn btn-main" @click="requestFaucet();" v-if="wallet.state == wallet.states[2] && !loading && status.type !== 'success'">Request Faucet Funds</button>
+      <button id="request" class="btn btn-main" @click="requestFaucet();" v-if="wallet.state == wallet.states[2] && !loading && status.type !== 'success'">Request Funds</button>
     </div>
 
     <!-- Loading -->
