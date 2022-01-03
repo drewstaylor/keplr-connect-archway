@@ -85,5 +85,6 @@ export const chainInfo = {
     average: 0.1,
     high: 0.2
   },
-  features: ['cosmwasm'],
+  faucets: ["https://faucet.constantine-1.archway.tech"],
+  features: ['cosmwasm']
 };

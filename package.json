@@ -1,6 +1,6 @@
 {
-  "name": "keplr-connect",
-  "version": "0.1.0",
+  "name": "archway-faucet",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,6 +11,7 @@
     "@cosmjs/cosmwasm-stargate": "^0.26.4",
     "@cosmjs/proto-signing": "^0.26.4",
     "@cosmjs/stargate": "^0.26.4",
+    "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "vue": "^3.0.0"
   },
