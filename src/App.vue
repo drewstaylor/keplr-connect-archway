@@ -41,6 +41,9 @@
 
     <!-- Loading -->
     <div class="loading bg-info" v-if="loading">
+      <div class="close-x">
+        <span class="float-right" @click="loading = null">×</span>
+      </div>
       <p v-if="loading">{{loading}}</p>
     </div>
 
@@ -137,10 +140,6 @@ export default {
       }
 
       this.loading = 'Updating account balances...';
-      this.status = {
-        type: null,
-        msg: null
-      };
 
       if (this.accounts) {
         if (this.accounts.length) {
@@ -148,7 +147,20 @@ export default {
             if (this.accounts[i]) {
               if (this.accounts[i]['address']) {
                 try {
-                  this.accounts[i].balance = await this.wasmClient.getBalance(this.accounts[i].address, 'uconst');
+
+                  let balance = await this.wasmClient.getBalance(this.accounts[i].address, 'uconst');
+                  if (this.accounts[i]['balance']) {
+                    if (balance > this.accounts[i].balance) {
+                      this.status = {
+                        type: 'success',
+                        msg: 'Account balance updated at address ' + this.accounts[i].address
+                      };
+                    } else {
+                      this.accounts[i].balance = balance;
+                    }
+                  } else {
+                    this.accounts[i].balance = balance;
+                  }
                   console.log('Balance', this.accounts[i].balance);
                   this.loading = null;
                 } catch (e) {
@@ -214,10 +226,19 @@ export default {
               console.log('Faucet request result', res);
               
               this.loading = null;
-              this.status = {
-                type: 'success',
-                msg: 'Your request for faucet funds has been submitted'
-              };
+
+              if (res.status == 200) {
+                this.status = {
+                  type: 'success',
+                  msg: 'Your request for faucet funds has been submitted'
+                };
+                this.getBalances();
+              } else {
+                this.status = {
+                  type: 'error',
+                  msg: 'Error requeting faucet funds'
+                };
+              }
             }
           } else {
             this.loading = null;
@@ -276,5 +297,15 @@ li span {
 .bg-danger {
   margin-top: 2rem;
   color: #ffffff;
+  padding: 1.25em;
+  border-radius: 1em;
+  text-align: center;
+}
+.close-x {
+  color: #ffffff;
+  position: relative;
+  right: 10px;
+  top: 2px;
+  cursor: pointer;
 }
 </style>
