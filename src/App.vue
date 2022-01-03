@@ -5,10 +5,15 @@
 
     <!-- Status Display / User Feedback -->
     <div class="status-display">
-      <ul class="status wallet-status">
+      <ul class="status wallet-status inline">
         <li class="wallet-state">
           <strong>Wallet State:</strong>&nbsp;
           <span>{{wallet.state}}</span>
+        </li>
+        <li class="network-state" v-if="accounts && wallet.state == wallet.states[2]">
+          <select name="network_selector" @change="networkSelection()" class="form-control" v-model="selectedNetwork">
+            <option :value="network" v-for="(network, i) in networks" :key="i">{{networkNames[i]}}</option>
+          </select>
         </li>
       </ul>
 
@@ -61,10 +66,13 @@
 
 <script>
 import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate';
-import { chainInfo } from './chain.info';
+import { ConstantineInfo } from './chain.info.constantine';
+import { TitusInfo } from './chain.info.titus';
 import axios from 'axios';
 
 const WALLET_STATES = ["Not connected", "Keplr not installed", "Connected", "Please update Keplr version"];
+const NETWORKS = ['constantine-1', 'titus-1'];
+const NETWORK_NAMES = ['Constantine', 'Titus'];
 
 export default {
   name: 'App',
@@ -76,7 +84,10 @@ export default {
     offlineSigner: null,
     wasmClient: null,
     accounts: null,
-    chainMeta: chainInfo,
+    chainMeta: ConstantineInfo,
+    networks: NETWORKS,
+    networkNames: NETWORK_NAMES,
+    selectedNetwork: NETWORKS[0],
     loading: null,
     status: {
       type: null,
@@ -97,9 +108,9 @@ export default {
         if (window) {
           if (window['keplr']) {
             if (window.keplr['experimentalSuggestChain']) {
-              let chainId = chainInfo.chainId;
-              let rpc = chainInfo.rpc;
-              await window.keplr.experimentalSuggestChain(chainInfo)
+              let chainId = this.chainMeta.chainId;
+              let rpc = this.chainMeta.rpc;
+              await window.keplr.experimentalSuggestChain(this.chainMeta)
               await window.keplr.enable(chainId);
               this.offlineSigner = await window.getOfflineSigner(chainId);
               this.wasmClient = await SigningCosmWasmClient.connectWithSigner(rpc, this.offlineSigner);
@@ -137,6 +148,10 @@ export default {
         return;
       } else if (!this.chainMeta['chainName']) {
         return;
+      } else if (!this.chainMeta['currencies']) {
+        return;
+      } else if (!this.chainMeta.currencies.length) {
+        return;
       }
 
       this.loading = 'Updating account balances...';
@@ -148,7 +163,7 @@ export default {
               if (this.accounts[i]['address']) {
                 try {
 
-                  let balance = await this.wasmClient.getBalance(this.accounts[i].address, 'uconst');
+                  let balance = await this.wasmClient.getBalance(this.accounts[i].address, this.chainMeta.currencies[0].coinMinimalDenom);
                   if (this.accounts[i]['balance']) {
                     if (balance > this.accounts[i].balance) {
                       this.status = {
@@ -188,6 +203,27 @@ export default {
           type: 'warning',
           msg: 'Failed to resolve Keplr wallet'
         };
+      }
+    },
+    networkSelection: async function() {
+      console.log('networkSelection', this.selectedNetwork);
+      switch (this.selectedNetwork) {
+        case NETWORKS[0]: {
+          if (this.chainMeta !== ConstantineInfo) {
+            this.chainMeta = ConstantineInfo;
+            await this.connectWallet();
+            await this.getBalances();
+          }
+          break;
+        }
+        case NETWORKS[1]: {
+          if (this.chainMeta !== TitusInfo) {
+            this.chainMeta = TitusInfo;
+            await this.connectWallet();
+            await this.getBalances();
+          }
+          break;
+        }
       }
     },
     requestFaucet: async function () {
@@ -230,7 +266,7 @@ export default {
               if (res.status == 200) {
                 this.status = {
                   type: 'success',
-                  msg: 'Your request for faucet funds has been submitted'
+                  msg: 'Successfully requested funds from faucet'
                 };
                 this.getBalances();
               } else {
@@ -285,6 +321,7 @@ div.content {
 div.content ul {
   list-style: none;
   padding-left: 0;
+  display: inline-block;
 }
 button {
   padding: 0.25rem;
